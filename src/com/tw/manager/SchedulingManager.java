@@ -122,7 +122,7 @@ public class SchedulingManager {
 				double endtime = 0;	
 				for(int j = 0; j < trackslist.get(i).getTalks().size(); j++){
 					if(!((trackslist.get(i).getTalks().get(j).getTalkname().trim()).equals(IConstants.NETWORKINGEVENT.trim()) || (trackslist.get(i).getTalks().get(j).getTalkname()).equals(IConstants.LUNCHBREAK.trim()))){
-						if((endtime == IConstants.MORNING_START_TIME)||(endtime == IConstants.NETWORKING_EVENT_START)){
+						if((endtime == IConstants.MORNING_START_TIME)||(endtime == IConstants.LUNCH_BREAK_START)){
 							starttime = starttime + 60;						
 						}
 						trackslist.get(i).getTalks().get(j).getSchedule().setStarttime(ConferenceUtils.getTime(starttime));

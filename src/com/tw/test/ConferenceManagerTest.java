@@ -23,6 +23,10 @@ public class ConferenceManagerTest {
 			talks.add(new Talk("Rails for Python Developers", IConstants.LIGHTNING));
 			talks.add(new Talk("Communicating Over Distance", 60));
 			talks.add(new Talk("Accounting-Driven Development", 45));
+			talks.add(new Talk("Accounting-Driven Development1", 45));
+			talks.add(new Talk("Accounting-Driven Development2", 5));
+			talks.add(new Talk("Accounting-Driven Development3", 9));
+			talks.add(new Talk("Accounting-Driven Development4", 11));
 			talks.add(new Talk("Woah", 30));
 			talks.add(new Talk("Sit Down and Write", 30));
 			talks.add(new Talk("Pair Programming vs Noise", 45));
