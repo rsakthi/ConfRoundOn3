@@ -28,7 +28,7 @@ public class FileManager {
 	
 	public void processInput(String paraminput){
 		if(paraminput.substring(paraminput.lastIndexOf(".")).equalsIgnoreCase("txt")){
-			
+			//TODO: process the input file and generate the list of talks for the schedule
 		}else{
 			
 		}

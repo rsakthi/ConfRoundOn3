@@ -47,32 +47,14 @@ public class SchedulingManager {
 		//The networking event can start no earlier than 4:00 and no later than 5:00.
 		
 		ConferenceManager cm = new ConferenceManager();		
-		
-		
-		public void scheduleTracks(List<Talk> paramtalkslist){
-			int totaltracks = 0;	
-			totaltracks = cm.calculateTotalTracksRequired(cm.getTotalTalkHours(paramtalkslist));			
-			for(int i = 0; i < totaltracks; i++){				
-			}			
-		}		
-		
-		/**
-		 * This method calculates and arranges the tracks with valid talks
-		 * 
-		 * @return List<Talk>
-		 */
-		public List<Talk> getTracksInUnits(List<Talk> originaltalklist){
-			SchedulingManager sm = new SchedulingManager();
-			List<Track> tracklist = sm.getCriteriaBasedTalks(originaltalklist);			
-			return null;
-		}
-		
+				
+				
 		/**
 		 * This method retrieves and returns the talks with specific duration
 		 * 
 		 * @return List<Talk>
 		 */
-		public List<Track> getCriteriaBasedTalks(List<Talk> originaltalklist){			
+		public List<Track> getListOfTalksForTracks(List<Talk> originaltalklist){			
 			double totaltrackhours = cm.getTotalTalkHours(originaltalklist);
 			int totaltracksrequired = cm.calculateTotalTracksRequired(totaltrackhours);
 			int trackscounter = totaltracksrequired;
@@ -80,21 +62,38 @@ public class SchedulingManager {
 			do{
 				for(int j = 0; j < totaltracksrequired; j++){ 
 					List<Talk> tracktalklist = new ArrayList<Talk>();
+					//List<Talk> eventracktalklist = new ArrayList<Talk>();
 					//switch between morning and afternoon sessions by a variable
-					int talkhours = 180;
+					int mornduration = 180;
+					int evenduration = 240;
+					
 					for(int i = 0; i < originaltalklist.size(); i++){										
-						if((originaltalklist.get(i).getDuration() == talkhours) && (originaltalklist.get(i).isScheduled() == false)){						
+						if((originaltalklist.get(i).getDuration() == mornduration) && (originaltalklist.get(i).isScheduled() == false)){						
 							originaltalklist.get(i).setScheduled(true);
-							talkhours = talkhours - originaltalklist.get(i).getDuration();
-							tracktalklist.add((Talk) originaltalklist.get(i));					
-						}else if( (originaltalklist.get(i).getDuration() < talkhours )&& (originaltalklist.get(i).isScheduled() == false)){						
+							mornduration = mornduration - originaltalklist.get(i).getDuration();
+							tracktalklist.add((Talk) originaltalklist.get(i));	
+							tracktalklist.add(SchedulingManager.getLunchEvent()); //Add the Lunch Event
+						}else if( (originaltalklist.get(i).getDuration() < mornduration )&& (originaltalklist.get(i).isScheduled() == false)){						
 							originaltalklist.get(i).setScheduled(true);
-							talkhours = talkhours - originaltalklist.get(i).getDuration();
+							mornduration = mornduration - originaltalklist.get(i).getDuration();
 							tracktalklist.add((Talk) originaltalklist.get(i));					
 						}	
 					}
-					if(tracktalklist.size() > 0){
-						tracklist.add(new Track(tracktalklist));
+					
+					for(int k = 0; k < originaltalklist.size(); k++){										
+						if((originaltalklist.get(k).getDuration() == evenduration) && (originaltalklist.get(k).isScheduled() == false)){						
+							originaltalklist.get(k).setScheduled(true);
+							evenduration = evenduration - originaltalklist.get(k).getDuration();
+							tracktalklist.add((Talk) originaltalklist.get(k));								
+						}else if( (originaltalklist.get(k).getDuration() < evenduration )&& (originaltalklist.get(k).isScheduled() == false)){						
+							originaltalklist.get(k).setScheduled(true);
+							evenduration = evenduration - originaltalklist.get(k).getDuration();
+							tracktalklist.add((Talk) originaltalklist.get(k));					
+						}	
+					}
+					if(tracktalklist.size() > 0){	
+						tracktalklist.add(SchedulingManager.getNetworkingEvent()); //Add the Networking Event
+						tracklist.add(new Track(tracktalklist));						
 						TalkDurationSorter sorter = new TalkDurationSorter();
 						Collections.sort(originaltalklist, sorter);
 						Collections.reverse(originaltalklist);
@@ -103,27 +102,85 @@ public class SchedulingManager {
 				}
 			}while(trackscounter >= 0);	
 			
-			for(int m = 0 ; m < tracklist.size(); m++){
-				System.out.println("**********************************" + tracklist.get(m).getTrackname() +"**********************************");
-				for(int n = 0; n < (tracklist.get(m)).getTalks().size(); n++){
-					System.out.println((tracklist.get(m)).getTalks().get(n).getDuration() +" - "+(tracklist.get(m)).getTalks().get(n).getTalkname());
-				}
-			}
+			SchedulingManager.scheduleTracks(tracklist);
 			return tracklist;					
 		}		
 		
+		
+		
 		/**
-		 * This method retrieves and returns the lightning talks
+		 * This method schedules the time slot for the ordered list of talks
 		 * 
 		 * @return List<Talk>
 		 */
-		public Talk getLightningTalks(List<Talk> originaltalklist){			
-			for(int i = 0; i < originaltalklist.size(); i++){				
-				if(!(originaltalklist.get(i).isScheduled()) && originaltalklist.get(i).getDuration() == IConstants.LIGHTNING){
-					return (Talk) originaltalklist.get(i);
+		public static List<Track> scheduleTracks(List<Track> trackslist){
+			
+			
+			for(int i = 0; i < trackslist.size(); i++){
+				
+				double starttime = 9*60;
+				double endtime = 0;	
+				for(int j = 0; j < trackslist.get(i).getTalks().size(); j++){
+					if(!((trackslist.get(i).getTalks().get(j).getTalkname().trim()).equals(IConstants.NETWORKINGEVENT.trim()) || (trackslist.get(i).getTalks().get(j).getTalkname()).equals(IConstants.LUNCHBREAK.trim()))){
+						if((endtime == IConstants.MORNING_START_TIME)||(endtime == IConstants.NETWORKING_EVENT_START)){
+							starttime = starttime + 60;						
+						}
+						trackslist.get(i).getTalks().get(j).getSchedule().setStarttime(ConferenceUtils.getTime(starttime));
+						endtime = starttime + trackslist.get(i).getTalks().get(j).getDuration();
+						trackslist.get(i).getTalks().get(j).getSchedule().setEndtime(ConferenceUtils.getTime(endtime));
+						starttime = endtime;
+					}
 				}				
 			}			
+			SchedulingManager.printTrackList(trackslist);
 			return null;
+		}
+		
+		/***************************************************************************************************************************************************************************************
+		 * *******************************************************					UTILITY METHODS					*******************************************************
+		 * *************************************************************************************************************************************************************************************/
+		
+		/**
+		 * This method retrieves and returns the Lunch event
+		 * 
+		 * @return List<Talk>
+		 */
+		 public static Talk getLunchEvent(){
+			Talk lunch = new Talk(IConstants.LUNCHBREAK, 60);
+			Schedule schedule = new Schedule();
+			schedule.setStarttime(ConferenceUtils.getTime(IConstants.LUNCH_BREAK_START));
+			schedule.setEndtime(ConferenceUtils.getTime(IConstants.LUNCH_BREAK_END));
+			lunch.setSchedule(schedule);
+			lunch.setScheduled(true);
+			return lunch;
+		 }
+		 
+		 /**
+		 * This method retrieves and returns the Lunch event
+		 * 
+		 * @return List<Talk>
+		 */
+		 public static Talk getNetworkingEvent(){			
+			 Talk networking = new Talk(IConstants.NETWORKINGEVENT, 0);
+			 Schedule schedule = new Schedule();
+			 schedule.setStarttime(ConferenceUtils.getTime(IConstants.NETWORKING_EVENT_START));	
+			 schedule.setEndtime(ConferenceUtils.getTime(IConstants.NETWORKING_EVENT_END));	
+			 networking.setSchedule(schedule);
+			 networking.setScheduled(true);
+			 return networking;
+		 }
+			
+		/**
+		 * This method prints the schedule.
+		 * @param tracklist
+		 */
+		public static void printTrackList(List<Track> tracklist){
+		for(int m = 0 ; m < tracklist.size(); m++){
+			System.out.println("**********************************" + tracklist.get(m).getTrackname() +"**********************************");
+			for(int n = 0; n < (tracklist.get(m)).getTalks().size(); n++){	
+					System.out.println((tracklist.get(m)).getTalks().get(n).getSchedule().getStarttime() +" - " + (tracklist.get(m)).getTalks().get(n).getSchedule().getEndtime() +" - "+(tracklist.get(m)).getTalks().get(n).getTalkname() +" - "+(tracklist.get(m)).getTalks().get(n).getDuration() );
+				}
+		  }
 		}
 		
 }

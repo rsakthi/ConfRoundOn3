@@ -37,16 +37,9 @@ public class ConferenceManagerTest {
 		return talks;
 	}
 	
-	public static void main(String[] args){
-		
-		ConferenceManager insconfmgr = new ConferenceManager();
-		SchedulingManager mgr = new SchedulingManager();
-		
-		mgr.getTracksInUnits(ConferenceManagerTest.getListOfTalks());
-		//double totaltalkhours = insconfmgr.getTotalTalkHours();
-		
-		//insconfmgr.scheduleTracks(ConferenceManagerTest.getListOfTalks(), null);
-		
+	public static void main(String[] args){		
+		ConferenceManager insconfmgr = new ConferenceManager();	
+		insconfmgr.getConferenceSchedule();				
 	}
 
 }

@@ -30,6 +30,7 @@ import com.tw.constants.IConstants;
 import com.tw.entity.Session;
 import com.tw.entity.Talk;
 import com.tw.entity.Track;
+import com.tw.test.ConferenceManagerTest;
 
 /**
  * This class is the business layer where the exact business logic for each and
@@ -47,16 +48,12 @@ public class ConferenceManager{
 	 * 
 	 * @return double
 	 */
-	public double getTotalTalkHours(List<Talk> paramtalkslist){
-		
-		double totaltalkhours = 0;
-				
+	public double getTotalTalkHours(List<Talk> paramtalkslist){		
+		double totaltalkhours = 0;				
 		for(Talk talks : paramtalkslist){
 			totaltalkhours += talks.getDuration();
-		}
-		
-		return totaltalkhours;
-		
+		}		
+		return totaltalkhours;	
 	}
 	
 	/**
@@ -65,14 +62,10 @@ public class ConferenceManager{
 	 * @return double
 	 */
 
-	public int calculateTotalTracksRequired(double paramtotaltalkhours){
-		
-		int totaltrackrequired = 0;
-		
-		totaltrackrequired = (int) Math.ceil(paramtotaltalkhours/IConstants.MAX_TRACK_TALK_DURATION);
-		
-		return totaltrackrequired;
-		
+	public int calculateTotalTracksRequired(double paramtotaltalkhours){		
+		int totaltrackrequired = 0;		
+		totaltrackrequired = (int) Math.ceil(paramtotaltalkhours/IConstants.MAX_TRACK_TALK_DURATION);		
+		return totaltrackrequired;		
 	}
 	
 	/**
@@ -80,16 +73,13 @@ public class ConferenceManager{
 	 * 
 	 * @return List<Talk>
 	 */
-	public List<Talk> resetSchedule(List<Talk> paramtalklist){
-		
-		List<Talk> instalklist = paramtalklist;
-		
+	public List<Talk> resetSchedule(List<Talk> paramtalklist){		
+		List<Talk> instalklist = paramtalklist;		
 		for(Talk talk: instalklist){
 			talk.getSchedule().setStarttime("");
 			talk.getSchedule().setEndtime("");
 			talk.getSchedule().setSession(Session.EMPTY);		
-		}
-		
+		}		
 		return instalklist; 
 	}
 	
@@ -97,15 +87,10 @@ public class ConferenceManager{
 	 * This method will schedule the Tracks based on the natural order (i.e. First Come First Serve basis)
 	 * 
 	 * @return List<Talk>
-	 */
-	
-	public List<Track> scheduleTracks(List<Talk> paramtalklist, String criteria){
-		
-		ConferenceManager confmgr = new ConferenceManager();
-		int hours = (int) confmgr.getTotalTalkHours(paramtalklist);
-		int tracks = confmgr.calculateTotalTracksRequired(hours);
-		int finaltrackhours = hours - ((tracks-1)*360);
-		System.out.println("Final Track Hours - "+finaltrackhours);
-		return null;
+	 */	
+	public void getConferenceSchedule(){		
+		ConferenceManagerTest confmgr = new ConferenceManagerTest();
+		SchedulingManager schmgr = new SchedulingManager();
+		schmgr.getListOfTalksForTracks(confmgr.getListOfTalks());		
 	}
 }

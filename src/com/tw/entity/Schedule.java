@@ -55,6 +55,11 @@ public class Schedule {
 		this.talkduration = talkduration;
 	}
 	
+	public Schedule() {
+		
+	}
+	
+	
 	/**
 	 * @return Returns the talkduration.
 	 */	
